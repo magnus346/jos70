@@ -5,7 +5,12 @@ const os = require('os');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    origin: "*", // Allow all origins (for development)
+    methods: ["GET", "POST"]
+  }
+});
 
 // Serve static HTML
 app.get('/', (req, res) => {
