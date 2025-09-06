@@ -5,11 +5,13 @@ const os = require('os');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server, {
-  cors: {
-    origin: "*", // Allow all origins (for development)
-    methods: ["GET", "POST"]
-  }
+const io = socketIO(server);
+
+// ✅ Middleware to set headers for iframe embedding
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', "frame-ancestors *");
+  res.removeHeader('X-Frame-Options'); // Remove legacy restriction if present
+  next();
 });
 
 // Serve static HTML
