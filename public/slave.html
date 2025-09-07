@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket Broadcaster</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>body { width:100%; height:100vh; }</style>
+</head>
+<body>
+  <audio id="right" src="audio-right.mp3"></audio>
+  <script>
+    const socket = io();
+
+    socket.on('message', msg => {
+      document.body.style.background = "green";
+      document.getElementById("right").play();
+    });
+  </script>
+</body>
+</html>
