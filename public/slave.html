@@ -7,6 +7,7 @@
 </head>
 <body>
   <audio id="right" src="audio-right.mp3"></audio>
+  <audio id="wrong" src="audio-wrong.mp3"></audio>
   <script>
     const socket = io();
 
@@ -21,11 +22,21 @@
       setTimeout(() => { toBlack(); }, 2000);
     };
 
+    const playWrong = () => {
+      if(!taped) return false;
+      document.body.style.background = "red";
+      document.getElementById("wrong").play();
+      setTimeout(() => { toBlack(); }, 2000);
+    };
+
     let taped = false;
     document.addEventListener('click', () => { taped = true; toBlack(); });
     
     socket.on('message', msg => {
-      playRight();
+      if(msg === 'right')
+        playRight();
+      if(msg === 'wrong')
+        playWrong();
     });
   </script>
 </body>
