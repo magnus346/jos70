@@ -14,9 +14,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static HTML
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/slave', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'slave.html'));
 });
 
 // Broadcast received messages
