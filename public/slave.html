@@ -10,9 +10,22 @@
   <script>
     const socket = io();
 
-    socket.on('message', msg => {
+    const toBlack = () => {
+      document.body.style.background = "black";
+    };
+
+    const playRight = () => {
+      if(!taped) return false;
       document.body.style.background = "green";
       document.getElementById("right").play();
+      setTimeout(() => { toBlack(); }, 2000);
+    };
+
+    let taped = false;
+    document.addEventListener('click', () => { taped = true; toBlack(); });
+    
+    socket.on('message', msg => {
+      playRight();
     });
   </script>
 </body>
