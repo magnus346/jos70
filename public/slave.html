@@ -13,32 +13,33 @@
   <script>
     const socket = io();
 
-    const toBlack = () => {
-      document.body.style.background = "black";
-    };
+    let timer = null;
 
-    const playAudio = (audio) => {
+    const playAudio = (color, audio) => {
       audio.pause();
       audio.currentTime = 0;
       audio.play();
+      document.body.style.background = color;
+      if(timer !== null)
+        clearTimeout(timer);
+      timer = setTimeout(() => { document.body.style.background = "black"; }, 1500);
     }
 
     const playRight = () => {
       if(!taped) return false;
-      document.body.style.background = "green";
-      playAudio(document.getElementById("right"));
-      setTimeout(() => { toBlack(); }, 2000);
+      playAudio('green', document.getElementById("right"));
     };
 
     const playWrong = () => {
       if(!taped) return false;
-      document.body.style.background = "red";
-       playAudio(document.getElementById("wrong"));
-      setTimeout(() => { toBlack(); }, 2000);
+      playAudio('red', document.getElementById("wrong"));
     };
 
     let taped = false;
-    document.addEventListener('click', () => { taped = true; toBlack(); });
+    document.addEventListener('click', () => {
+      taped = true;
+      document.body.style.background = "black";
+    });
     
     socket.on('message', msg => {
       if(msg === 'right')
