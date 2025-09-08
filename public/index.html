@@ -30,10 +30,10 @@
     }
 
     for(const button of document.querySelectorAll('.btn')) {
-      button.addEventListerner('pointerdown', (event) => {
+      button.addEventListener('pointerdown', (event) => {
         event.target.classList.add('inner-shadow');
       });
-      button.addEventListerner('pointerup', (event) => {
+      button.addEventListener('pointerup', (event) => {
         event.target.classList.remove('inner-shadow');
         sendMessage(event.target.getAttribute('data-message'));
       });
