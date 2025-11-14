@@ -5,34 +5,119 @@
   <meta name="msapplication-tap-highlight" content="no">
   <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
   <script src="/socket.io/socket.io.js"></script>
-  <style>body { width:100%; height:100vh; }</style>
+  <style>
+    @font-face {
+        font-family: 'Digital';
+        src: url('/fonts/Digital.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+    }
+    body {
+        width:100%;
+        height:100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #timer {
+        font-family: 'Digital', monospace;
+        color: #fff;
+        font-size: 30vw;
+        user-select: none;
+    }
+  </style>
 </head>
 <body>
-  <audio id="right" src="audio-right.mp3" preload="auto"></audio>
-  <audio id="wrong" src="audio-wrong.mp3" preload="auto"></audio>
+  <div id="timer" style="display:none">01:00</div>
+  <audio id="audio-right" src="audio-right.mp3" preload="auto"></audio>
+  <audio id="audio-wrong" src="audio-wrong.mp3" preload="auto"></audio>
+  <audio id="audio-timer" src="audio-timer.mp3" preload="auto"></audio>
   <script>
     const socket = io();
 
-    let timer = null;
+    let audiotimeout = null;
+    let audiotimertimeout = null;
+    let timerInterval = null;
+    let timerIsActive = false;
 
     const playAudio = (color, audio) => {
       audio.pause();
       audio.currentTime = 0;
       audio.play();
+      document.getElementById("timer").style.opacity = "0.3";
       document.body.style.background = color;
-      if(timer !== null)
-        clearTimeout(timer);
-      timer = setTimeout(() => { document.body.style.background = "black"; }, 1500);
+      if(audiotimeout !== null)
+        clearTimeout(audiotimeout);
+      audiotimeout = setTimeout(() => {
+        document.getElementById("timer").style.opacity = "1";
+        document.body.style.background = "black";
+        audiotimeout = null;
+      }, 1500);
     }
 
     const playRight = () => {
       if(!taped) return false;
-      playAudio('green', document.getElementById("right"));
+      playAudio('green', document.getElementById("audio-right"));
     };
 
     const playWrong = () => {
       if(!taped) return false;
-      playAudio('red', document.getElementById("wrong"));
+      playAudio('red', document.getElementById("audio-wrong"));
+    };
+
+    const playTimer = () => {
+      if(!taped) return false;
+      const audio = document.getElementById("audio-timer");
+      audio.pause();
+      audio.currentTime = 0;
+      audio.play();
+      audiotimertimeout = setTimeout(() => {
+        audiotimertimeout = null;
+      }, 9000);
+    };
+
+    const switchTimer = () => {
+      if(!taped) return false;
+      if(timerIsActive) {
+        document.getElementById("timer").style.display = "none";
+        timerIsActive = false;
+        clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById("timer").textContent = "01:00";
+      } else {
+        document.getElementById("timer").style.display = "block";
+        timerIsActive = true;
+      }
+    };
+
+    const startTimer = () => {
+      console.log(timerInterval);
+      if(!taped) return false;
+      if(!timerIsActive) return false;
+      if(timerInterval) return false;
+      let time = 59;
+      const timerElement = document.getElementById("timer");
+      timerInterval = setInterval(() => {
+        if(!timerIsActive) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerElement.textContent = "01:00";
+          return;
+        }
+        const minutes = String(Math.floor(time / 60)).padStart(2, '0');
+        const seconds = String(time % 60).padStart(2, '0');
+        timerElement.textContent = `${minutes}:${seconds}`;
+        if(time === 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerIsActive = false;
+          return;
+        }
+        if(time <= 5 && audiotimertimeout === null) {
+          playTimer();
+        }
+        time--;
+      }, 1000);
     };
 
     let taped = false;
@@ -46,6 +131,10 @@
         playRight();
       if(msg === 'wrong')
         playWrong();
+      if(msg === 'timer')
+        switchTimer();
+      if(msg === 'start')
+        startTimer();
     });
   </script>
 </body>
